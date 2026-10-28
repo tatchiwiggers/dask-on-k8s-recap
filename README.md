@@ -111,8 +111,12 @@ This is the same **driver / executor** pattern Spark uses!
 **Helm** is the package manager for Kubernetes: one chart = all the deployments, services and pods Dask needs.
 
 ```bash
-helm repo add dask https://helm.dask.org/
-helm repo update
+# Ubuntu / WSL
+curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+# macOS
+brew install helm
+
+helm version
 ```
 
 Let's look at [`config.yaml`](config.yaml) together - it overrides the chart's defaults:
