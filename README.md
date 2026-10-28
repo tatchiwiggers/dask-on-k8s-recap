@@ -148,14 +148,21 @@ Our functions and data are **pickled** on the client and **unpickled** on the wo
 
 </details>
 
-Check we're pointing at the right cluster, then install:
+### Check you're connected to the right cluster, then install Dask
 
 ```bash
-kubectl config current-context
-kubectl get nodes
+kubectl config current-context   # should print gke_<project>_<zone>_<cluster>
+kubectl get nodes                # should list your nodes as Ready
 
 helm install mydask dask/dask -f config.yaml --version=2022.11.0
 ```
+
+> ⚠️ If `current-context` is empty or you see `localhost:8080 ... connection refused`, kubectl isn't connected to your cluster. Find your cluster and connect:
+> ```bash
+> gcloud container clusters list --project $PROJECT_ID          # note NAME and LOCATION
+> gcloud container clusters get-credentials <NAME> --zone <LOCATION> --project $PROJECT_ID
+> ```
+> Then run the commands above again.
 
 Inspect what Helm created:
 
