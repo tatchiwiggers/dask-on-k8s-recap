@@ -173,6 +173,40 @@ kubectl get pods
 kubectl top nodes
 ```
 
+# Troubleshooting
+
+### Create the cluster
+
+```bash
+gcloud container clusters create mydaskcluster \
+  --project $PROJECT_ID \
+  --machine-type e2-standard-2 \
+  --num-nodes 2 \
+  --disk-size 30 \
+  --zone europe-west1-b \
+  --node-locations europe-west1-b,europe-west1-c \
+  --service-account gke-nodes@${PROJECT_ID}.iam.gserviceaccount.com
+```
+
+⏳ This takes ~5 minutes. When it's done you should see something like:
+
+```
+Creating cluster mydaskcluster in europe-west1-b... Cluster is being health-checked (Kubernetes Control Plane is healthy)...done.
+Created [https://container.googleapis.com/v1/projects/<your-project-id>/zones/europe-west1-b/clusters/mydaskcluster].
+kubeconfig entry generated for mydaskcluster.
+NAME           LOCATION        MASTER_VERSION  MASTER_IP      MACHINE_TYPE   NODE_VERSION  NUM_NODES  STATUS   STACK_TYPE
+mydaskcluster  europe-west1-b  1.xx.x-gke.xxx  xx.xxx.xx.xxx  e2-standard-2  1.xx.x-gke.xxx  4        RUNNING  IPV4
+```
+
+✅ Check that:
+- `STATUS` is **RUNNING**
+- `NUM_NODES` is **4** (`--num-nodes` is *per zone*: 2 nodes × 2 zones)
+- You see `kubeconfig entry generated` → `kubectl` is now connected to your cluster
+
+> ℹ️ The note `Your Pod address range ... can accommodate at most 1008 node(s)` is informational — you can ignore it.
+>
+> ⚠️ If you get a CPU quota error, re-run with `--num-nodes 1` (2 nodes total).
+
 ❓ We have 4 nodes × 2 vCPUs = **8 CPUs**, but only 4 workers with 1 CPU each. Where's the rest?
 
 <details>
