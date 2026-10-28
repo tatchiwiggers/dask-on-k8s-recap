@@ -67,7 +67,11 @@ gcloud container clusters create $CLUSTER_NAME \
 
 ### 4. Connect kubectl
 ```bash
-gcloud components install kubectl   # if not installed
+# If gcloud was installed via apt (Le Wagon setup on Ubuntu/WSL):
+sudo apt-get install -y kubectl google-cloud-cli-gke-gcloud-auth-plugin
+# If gcloud was installed via the standalone installer / macOS:
+gcloud components install kubectl gke-gcloud-auth-plugin
+
 gcloud container clusters get-credentials $CLUSTER_NAME --zone $ZONE --project $PROJECT_ID
 kubectl get nodes
 ```
