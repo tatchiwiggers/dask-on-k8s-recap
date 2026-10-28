@@ -31,29 +31,51 @@ Today we'll do it with **Dask** (Python-native, pandas/numpy-like API). Spark so
 
 # 1️⃣ Create the cluster ☸️
 
-🚨 **Cost alert**: 4 × `e2-standard-2` nodes ≈ **$0.90/hour**. We delete it at the end!
-
+### 1. Set your variables
 ```bash
-gcloud container clusters create mydaskcluster \
---machine-type e2-standard-2 \
---num-nodes 2 \
---disk-size "30" \
---zone=europe-west1-b \
---node-locations=europe-west1-b,europe-west1-c
+export PROJECT_ID=<your-gcp-project-id>
+export CLUSTER_NAME=mydaskcluster
+export ZONE=europe-west1-b
+export NODE_LOCATIONS=europe-west1-b,europe-west1-c
+export NODE_SA=gke-nodes@${PROJECT_ID}.iam.gserviceaccount.com
 ```
 
-❓ `--num-nodes 2` but we get **4** machines. Why?
+### 2. Create a service account for the nodes (one time only)
+```bash
+gcloud iam service-accounts create gke-nodes --project $PROJECT_ID
 
-<details>
-<summary markdown='span'>🎁 Answer</summary>
+for ROLE in roles/container.defaultNodeServiceAccount roles/artifactregistry.reader; do
+  gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:${NODE_SA}" \
+    --role="$ROLE" --condition=None
+done
+```
+> Wait ~30 seconds for the service account to propagate before the next step.
 
-`--num-nodes` is **per zone**: 2 nodes × 2 node-locations = 4 nodes.
+### 3. Create the cluster
+```bash
+gcloud container clusters create $CLUSTER_NAME \
+  --project $PROJECT_ID \
+  --machine-type e2-standard-2 \
+  --num-nodes 2 \
+  --disk-size 30 \
+  --zone $ZONE \
+  --node-locations $NODE_LOCATIONS \
+  --service-account $NODE_SA
+```
+> ⚠️ `--num-nodes` is **per zone**: 2 nodes × 2 zones = 4 nodes (8 vCPUs). If you hit a quota error, use `--num-nodes 1`.
 
-</details>
+### 4. Connect kubectl
+```bash
+gcloud components install kubectl   # if not installed
+gcloud container clusters get-credentials $CLUSTER_NAME --zone $ZONE --project $PROJECT_ID
+kubectl get nodes
+```
 
-⏰ It takes ~10 minutes to provision - let's talk through the architecture while we wait.
-
-<br>
+### 5. Delete the cluster when done (it costs money while running!)
+```bash
+gcloud container clusters delete $CLUSTER_NAME --zone $ZONE --project $PROJECT_ID
+```
 
 # 2️⃣ The architecture 🏗️
 
