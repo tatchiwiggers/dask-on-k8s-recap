@@ -218,6 +218,15 @@ mydaskcluster  europe-west1-b  1.xx.x-gke.xxx  xx.xxx.xx.xxx  e2-standard-2  1.x
 
 </details>
 
+Inspect what Helm created AGAIN:
+
+```bash
+kubectl get deployments
+kubectl get services
+kubectl get pods
+kubectl top nodes
+```
+
 Open the dashboard by port-forwarding the scheduler **service**:
 
 ```bash
