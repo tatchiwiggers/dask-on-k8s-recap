@@ -1,0 +1,15 @@
+worker:
+  replicas: 4 # number of worker pods
+  resources:
+    limits: # max allowed per pod
+      cpu: 1
+      memory: 4Gi
+    requests: # requested per pod
+      cpu: 1
+      memory: 3Gi
+  env: # Install packages to match the version on our VM (see pyproject.toml)
+    - name: EXTRA_PIP_PACKAGES
+      value: pyarrow==10.0.1 dask==2022.12.0 pandas==1.3.0 numpy==1.24.1
+
+jupyter:
+  enabled: false
